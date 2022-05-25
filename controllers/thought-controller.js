@@ -1,6 +1,41 @@
 const { Thought, User } = require("../models");
 
 const thoughtController = {
+  getAllThought(req, res) {
+    Thought.find({})
+      .select("-__v")
+      .sort({ _id: -1 })
+      .then((dbUserData) => res.json(dbUserData))
+      .catch((err) => {
+        console.log(err);
+        res.status(400).json(err);
+      });
+  },
+
+  getThoughtById({ params }, res) {
+    Thought.findOne({ _id: params.thoughtId })
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          return res.status(404).json({ message: "Thought can not be found." });
+        }
+        res.json(dbUserData);
+      })
+      .catch((err) => res.status(404).json(err));
+  },
+
+  updateThoughtById({ params, body }, res) {
+    Thought.findOneAndUpdate({ _id: params.thoughId }, body, {
+      new: true,
+      runValidators: true,
+    })
+      .then((dbUserData) => {
+        if (!dbUserData) {
+          return res.status(404).json({ message: "Thought can not be found" });
+        }
+        res.json(dbUserData);
+      })
+      .catch((err) => res.status(404).json(err));
+  },
   // add thought to user
   addThought({ params, body }, res) {
     console.log(body);
