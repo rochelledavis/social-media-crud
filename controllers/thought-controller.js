@@ -37,20 +37,20 @@ const thoughtController = {
       .catch((err) => res.status(404).json(err));
   },
   // add thought to user
-  addThought({ params, body }, res) {
-    console.log(body);
+  addThought({ body }, res) {
     Thought.create(body)
       .then(({ _id }) => {
         return User.findOneAndUpdate(
-          { _id: params.UserId },
+          { _id: body.userId },
           { $push: { thoughts: _id } },
-          { new: true }
+          { new: true, runValidators: true }
         );
       })
       .then((dbUserData) => {
         if (!dbUserData) {
-          res.status(404).json({ message: "No user found with this id!" });
-          return;
+          return res
+            .status(404)
+            .json({ message: "No user found with this id!" });
         }
         res.json(dbUserData);
       })
@@ -65,8 +65,9 @@ const thoughtController = {
     )
       .then((dbUserData) => {
         if (!dbUserData) {
-          res.status(404).json({ message: "No user found with this id!" });
-          return;
+          return res
+            .status(404)
+            .json({ message: "No user found with this id!" });
         }
         res.json(dbUserData);
       })
